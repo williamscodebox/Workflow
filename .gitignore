@@ -1,0 +1,6 @@
+/info.txt
+
+.DS_Store
+outputs
+**/*__pycache__*
+info.txt
