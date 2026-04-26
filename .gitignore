@@ -8,3 +8,5 @@ testsetup.txt
 *.xml
 *.iml
 .idea/
+/.idea
+.idea
