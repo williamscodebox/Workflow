@@ -1,16 +1,32 @@
-# This is a sample Python script.
+import requests
+import json
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Set up the base URL for the local Ollama API
+url = "http://localhost:11434/api/chat"
 
+# Define the payload (your input prompt)
+payload = {
+    "model": "phi3:mini", # replace with model to be used
+    "messages": [{"role": "user", "content": "What is Python?"}]
+}
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Send the HTTP POST request with streaming enabled
+response = requests.post(url, json=payload, stream=True)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Check the response status
+if response.status_code == 200:
+    print("Streaming response from Ollama:")
+    for line in response.iter_lines(decode_unicode=True):
+        if line:  # Ignore empty lines
+            try:
+                # Parse each line as a JSON object
+                json_data = json.loads(line)
+                # Extract and print the assistant's message content
+                if "message" in json_data and "content" in json_data["message"]:
+                    print(json_data["message"]["content"], end="")
+            except json.JSONDecodeError:
+                print(f"\nFailed to parse line: {line}")
+    print()  # Ensure the final output ends with a newline
+else:
+    print(f"Error: {response.status_code}")
+    print(response.text)
