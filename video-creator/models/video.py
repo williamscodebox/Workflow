@@ -1,4 +1,4 @@
-from moviepy.editor import *
+from moviepy import *
 import os
 from typing import List
 
@@ -24,7 +24,7 @@ class VideoModel:
         base_video = concatenate_videoclips(image_clips, method="compose", padding=-0.5)
 
         # Calculate leftover time
-        leftover = self.audio_duration - base_video.duration
+        leftover = max(0, self.audio_duration - base_video.duration)
 
         filler_clip = (
             ImageClip("images/filler.png")
@@ -87,11 +87,11 @@ class VideoEffects:
         image_path, duration, zoom_start=1.0, zoom_end=1.1, fade_duration=0.5
     ):
         # Load image as clip
-        clip = ImageClip(image_path).set_duration(duration)
+        clip = ImageClip(image_path).set_duration(duration).set_fps(24)
 
         # Apply zoom using a lambda-based resize (linear interpolation over time)
         zoomed = clip.resize(
-            lambda t: zoom_start + (zoom_end - zoom_start) * (t / duration)
+            lambda t: zoom_start + (zoom_end - zoom_start) * (t / duration) ** 1.5
         )
 
         # Apply fade-in and fade-out
@@ -148,7 +148,8 @@ class SubtitleEffects:
                         None,
                     ),  # wrap at screen width - 100px padding
                 )
-                .set_position(("center", "center"))
+                .set_position(("center", "bottom"))
+                .margin(bottom=80)
                 .set_start(start)
                 .set_duration(duration)
                 .fadein(0.01)
