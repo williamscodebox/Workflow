@@ -2,12 +2,14 @@ from models.text import TextModel
 from models.image import ImageModel
 from models.audio import AudioModel
 from models.subtitle import SubtitleModel
-from models.video import VideoModel
 import util
 import os
 from typing import List, Tuple, Optional
 import time
 import random
+import subprocess
+import json
+import os
 
 
 def get_output_path() -> str:
@@ -94,19 +96,37 @@ def create_subtitle(audio_filepath: str) -> List:
     return subtitle_model.generate_subtitle(audio_filepath)
 
 
-def create_video(
-    audio_path: str,
-    image_folder: str,
-    subtitle: Optional[List],
-    bgm_path: Optional[str],
-):
-    video_path = f"{STORAGE}/video.mp4"
-    video_model = VideoModel(audio_path)
-    video_model.set_video(image_folder)
-    video_model.attach_audio(bgm_path)
-    if subtitle:
-        video_model.attach_subtitle(subtitle)
-    video_model.generate_video(video_path)
+def create_video(audio, images, output, bgm=None, subtitles=None):
+    video_env_python =  r"C:\Users\panda\PycharmProjects\Workflow\mlstackvenv\Scripts\python.exe"
+
+    payload = {
+        "audio": audio,
+        "images": images,
+        "output": output,
+        "bgm": bgm,
+        "subtitles": subtitles,
+    }
+
+    cmd = [
+        video_env_python,
+        "video_worker.py",
+        json.dumps(payload)
+    ]
+
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    out, err = process.communicate()
+
+    print("VIDEO OUT:", out)
+    print("VIDEO ERR:", err)
+
+    if process.returncode != 0:
+        raise RuntimeError("Video subprocess failed")
 
 
 def main():
