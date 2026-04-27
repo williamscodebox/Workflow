@@ -1,24 +1,46 @@
-import whisperx
-from typing import List
+import subprocess
+import json
+import os
+import tempfile
 
+WHISPERX_PYTHON = r"C:\Users\panda\PycharmProjects\Workflow\whisperXenv\Scripts\python.exe"
 
 class SubtitleModel:
-    def __init__(self):
-        self.model = whisperx.load_model("medium", device="cpu", compute_type="float32")
+    # noinspection PyMethodMayBeStatic
+    def generate_subtitle(self, audio_path: str):
+        """
+        Calls WhisperX from the isolated venv and returns word-level subtitles.
+        """
 
-    def generate_subtitle(self, audio_filepath: str) -> List:
-        result = self.model.transcribe(audio_filepath)
-        model_a, metadata = whisperx.load_align_model(
-            language_code=result["language"], device="cpu"
-        )
-        aligned = whisperx.align(
-            result["segments"], model_a, metadata, audio_filepath, device="cpu"
-        )
+        # Temporary output file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
+            output_json = tmp.name
 
-        print("✅ Subtitles generated!")
+        # Run WhisperX
+        cmd = [
+            WHISPERX_PYTHON,
+            "-m", "whisperx",
+            audio_path,
+            "--model", "large-v3",
+            "--output_format", "json",
+            "--output_file", output_json
+        ]
 
-        subtitle = []
-        for word_data in aligned["word_segments"]:
-            subtitle.append(word_data)
+        subprocess.run(cmd, check=True)
 
-        return subtitle
+        # Load WhisperX output
+        with open(output_json, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Convert to your expected format
+        words = []
+        for segment in data.get("segments", []):
+            for w in segment.get("words", []):
+                words.append({
+                    "word": w["text"],
+                    "start": w["start"],
+                    "end": w["end"],
+                    "score": w.get("confidence", 1.0)
+                })
+
+        return words
