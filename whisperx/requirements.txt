@@ -1,0 +1,14 @@
+# GPU PyTorch (CUDA 12.1)
+torch==2.5.1+cu121
+torchaudio==2.5.1+cu121
+
+# WhisperX (installed via git)
+git+https://github.com/m-bain/whisperx.git@f10dbf6ab1717e84db7733df9c0b21658ee68f9b
+
+# Optional: Diarization (WhisperX uses pyannote 3.x)
+pyannote.audio==3.3.2
+pyannote.core==5.0.0
+pyannote.pipeline==3.0.1
+
+# Utilities
+numpy==1.26.4
