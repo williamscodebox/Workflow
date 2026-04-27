@@ -1,0 +1,6 @@
+
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+pip install git+https://github.com/m-bain/whisperx.git@f10dbf6ab1717e84db7733df9c0b21658ee68f9b
+
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
