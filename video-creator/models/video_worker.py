@@ -2,6 +2,7 @@
 import sys
 import json
 from video import VideoModel   # your class
+import os
 
 def main():
     args = json.loads(sys.argv[1])
@@ -11,6 +12,9 @@ def main():
     bgm = args.get("bgm")
     subtitles = args.get("subtitles")
     output = args["output"]
+
+    print("DEBUG — images folder:", images)
+    print("DEBUG — files:", os.listdir(images))
 
     model = VideoModel(audio)
     model.set_video(images)
