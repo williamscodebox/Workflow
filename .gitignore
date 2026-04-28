@@ -1,5 +1,4 @@
 /info.txt
-
 .DS_Store
 outputs
 **/*__pycache__*
@@ -14,3 +13,5 @@ testsetup.txt
 imagefail.txt
 imagefail2.txt
 mustdonext.txt
+notes.txt
+
