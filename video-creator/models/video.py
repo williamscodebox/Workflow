@@ -2,7 +2,6 @@ from moviepy import *
 import os
 from typing import List
 
-
 class VideoModel:
     def __init__(self, audio_path: str):
         self.audio = AudioFileClip(audio_path)
@@ -40,9 +39,21 @@ class VideoModel:
 
     def attach_audio(self, bgm_path: str | None = None):
         audios = [self.audio]
+
         if bgm_path:
-            bgm = AudioFileClip(bgm_path).with_volume(0.2).with_duration(self.audio_duration)
+            if not isinstance(bgm_path, str):
+                raise TypeError(f"attach_audio expected a file path, got {type(bgm_path)}")
+
+            print("DEBUG — bgm_path:", bgm_path)
+            print("DEBUG — exists:", os.path.exists(bgm_path))
+
+            bgm = (
+                AudioFileClip(bgm_path)
+                .max_volume(0.2)
+                .set_duration(self.audio_duration)
+            )
             audios.append(bgm)
+
         composite_audio = CompositeAudioClip(audios)
         self.video = self.video.set_audio(composite_audio)
 
