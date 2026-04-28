@@ -46,6 +46,7 @@ class TextModel:
         {content}
         """
 
+        # --- Call LLM ---
         response = ollama.chat(
             model="phi3:mini",
             messages=[
@@ -56,24 +57,28 @@ class TextModel:
 
         raw = response["message"]["content"].strip()
 
-        # --- 1. Fast path: valid JSON ---
+        # --- 1. Try direct JSON ---
         try:
-            return list(json.loads(raw))
-        except Exception:
+            data = json.loads(raw)
+            if isinstance(data, list) and data:
+                return data
+        except:
             pass
 
-        # --- 2. Attempt to extract JSON array from messy output ---
-        try:
-            # Extract anything between [ ... ]
-            match = re.search(r" \[(.| \n) *\] ", raw)
-            if match:
-                cleaned = match.group(0)
-            return list(json.loads(cleaned))
-        except Exception:
-            pass
+        # --- 2. Extract JSON array using robust regex ---
+        # This matches ANYTHING between the first '[' and the last ']'
+        match = re.search(r" \[. *] ", raw, flags=re.DOTALL)
 
-        # --- 3. Retry once with a stricter system prompt ---
-        retry_response = ollama.chat(
+        if match:
+            try:
+                data = json.loads(match.group(0))
+                if isinstance(data, list) and data:
+                    return data
+            except:
+                pass
+
+        # --- 3. Retry with stricter prompt ---
+        retry = ollama.chat(
             model="phi3:mini",
             messages=[
                 {"role": "system", "content": "Return ONLY a JSON array of 5 strings."},
@@ -81,13 +86,19 @@ class TextModel:
             ],
         )
 
-        retry_raw = retry_response["message"]["content"].strip()
+        retry_raw = retry["message"]["content"].strip()
 
         try:
-            return list(json.loads(retry_raw))
-        except Exception:
-            print("❌ LLM failed to return valid JSON twice.")
-            print("Raw output:", raw)
-            print("Retry output:", retry_raw)
-            return []
+            data = json.loads(retry_raw)
+            if isinstance(data, list) and data:
+                return data
+        except:
+            pass
 
+        # --- 4. Final fallback (NEVER return empty) ---
+        print("❌ LLM failed to return valid JSON twice.")
+        print("Raw output:", raw)
+        print("Retry output:", retry_raw)
+
+        # crude but safe fallback
+        return [content[:200]]
