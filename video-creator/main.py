@@ -57,15 +57,20 @@ DEFAULT_TOPICS = [
 def get_content() -> Tuple[str, List[str]]:
     text_model = TextModel()
     topic = random.choice(DEFAULT_TOPICS)
-    # topic = DEFAULT_TOPICS[9]
-    content = text_model.generate_content(topic)
-    content_storage = f"{STORAGE}/content/"
-    os.makedirs(content_storage)
-    util.write_file(content, f"{content_storage}content.txt")
-    prompts = text_model.generate_image_prompts(content)
-    util.write_file(str(prompts), f"{content_storage}prompts.json")
 
-    return (content, prompts)
+    content = text_model.generate_content(topic)
+
+    content_storage = f"{STORAGE}/content/"
+    os.makedirs(content_storage, exist_ok=True)
+
+    util.write_file(content, f"{content_storage}content.txt")
+
+    prompts = text_model.generate_image_prompts(content)
+    util.write_file(json.dumps(prompts, ensure_ascii=False, indent=2),
+                    f"{content_storage}prompts.json")
+
+    return content, prompts
+
 
 
 def create_images(prompts: List[str]) -> str:
@@ -97,7 +102,7 @@ def create_subtitle(audio_filepath: str) -> List:
 
 
 def create_video(audio, images, output, bgm=None, subtitles=None):
-    video_env_python =  r"C:\Users\panda\PycharmProjects\Workflow\mlstackvenv\Scripts\python.exe"
+    video_env_python =  r"C:\Users\panda\PycharmProjects\Workflow\.mlstackvenv\Scripts\python.exe"
 
     payload = {
         "audio": audio,
