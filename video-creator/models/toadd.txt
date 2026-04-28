@@ -1,0 +1,13 @@
+🚀 If you want word‑level timestamps on Windows
+I can help you integrate one of these:
+
+Option A — Faster‑Whisper alignment (Windows compatible)
+There is a community aligner that uses CTranslate2 instead of Pyannote.
+
+Option B — Run alignment inside WSL2
+Linux subsystem → Pyannote + k2 works perfectly.
+
+Option C — Run alignment inside Docker Linux
+Also works flawlessly.
+
+Just tell me which direction you want to go and I’ll build it for you.
