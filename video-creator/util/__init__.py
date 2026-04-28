@@ -21,6 +21,6 @@ def read_file(file_path: str) -> str | None:
         return f.read()
 
 
-def write_file(content: str, file_path: str):
-    with open(file_path, "w") as f:
+def write_file(content, path):
+    with open(path, "w", encoding="utf-8") as f:
         return f.write(content)
