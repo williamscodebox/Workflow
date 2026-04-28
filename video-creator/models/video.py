@@ -10,12 +10,12 @@ class VideoModel:
 
     def set_video(self, image_folder: str):
         image_files = sorted(
-            [
-                os.path.join(image_folder, fname)
-                for fname in os.listdir(image_folder)
-                if fname.lower().endswith((".png", ".jpg", ".jpeg"))
-            ]
+            os.path.join(image_folder, f) for f in os.listdir(image_folder)
+            if f.lower().endswith((".png", ".jpg", ".jpeg"))
         )
+
+        if not image_files:
+            raise RuntimeError(f"No images found in folder: {image_folder}")
 
         image_duration = self.audio_duration / len(image_files)
         image_clips = [
@@ -28,10 +28,12 @@ class VideoModel:
 
         filler_clip = (
             ImageClip("images/filler.png")
-            .set_duration(leftover)
-            .resize(base_video.size)
-            .fadein(0.2)
-            .fadeout(0.2)
+            .with_duration(leftover)
+            .resized(base_video.size)
+            .with_effects([
+                vfx.FadeIn(0.2),
+                vfx.FadeOut(0.2),
+            ])
         )
 
         self.video = concatenate_videoclips([base_video, filler_clip], method="compose")
@@ -39,7 +41,7 @@ class VideoModel:
     def attach_audio(self, bgm_path: str | None = None):
         audios = [self.audio]
         if bgm_path:
-            bgm = AudioFileClip(bgm_path).volumex(0.2).set_duration(self.audio_duration)
+            bgm = AudioFileClip(bgm_path).with_volume(0.2).with_duration(self.audio_duration)
             audios.append(bgm)
         composite_audio = CompositeAudioClip(audios)
         self.video = self.video.set_audio(composite_audio)
@@ -78,8 +80,14 @@ class VideoEffects:
 
     @staticmethod
     def add_fade_effect(image_path, duration=3.0, fade_duration=0.5):
-        clip = ImageClip(image_path).set_duration(duration)
-        clip = clip.fadein(fade_duration).fadeout(fade_duration)
+        clip = ImageClip(image_path).with_duration(duration)
+
+        # MoviePy 2.0: with_effects expects *effect instances*, not tuples
+        clip = clip.with_effects([
+            vfx.FadeIn(fade_duration),
+            vfx.FadeOut(fade_duration),
+        ])
+
         return clip
 
     @staticmethod
@@ -87,10 +95,10 @@ class VideoEffects:
         image_path, duration, zoom_start=1.0, zoom_end=1.1, fade_duration=0.5
     ):
         # Load image as clip
-        clip = ImageClip(image_path).set_duration(duration).set_fps(24)
+        clip = ImageClip(image_path).with_duration(duration).set_fps(24)
 
         # Apply zoom using a lambda-based resize (linear interpolation over time)
-        zoomed = clip.resize(
+        zoomed = clip.resized(
             lambda t: zoom_start + (zoom_end - zoom_start) * (t / duration) ** 1.5
         )
 
@@ -103,7 +111,7 @@ class VideoEffects:
     def apply_stable_zoom(
         image_path, duration, zoom_start=1.0, zoom_end=1.1, fade_duration=0.5
     ):
-        clip = ImageClip(image_path).resize(height=720).set_duration(duration)
+        clip = ImageClip(image_path).resized(height=720).set_duration(duration)
 
         w, h = clip.size
 
@@ -115,7 +123,7 @@ class VideoEffects:
                 clip.crop(
                     x_center=x_center, y_center=y_center, width=new_w, height=new_h
                 )
-                .resize((w, h))
+                .resized((w, h))
                 .get_frame(t)
             )
 
