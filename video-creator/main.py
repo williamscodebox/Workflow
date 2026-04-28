@@ -75,12 +75,16 @@ def get_content() -> Tuple[str, List[str]]:
 
 def create_images(prompts: List[str]) -> str:
     image_storage = f"{STORAGE}/images/"
-    os.makedirs(image_storage)
+    os.makedirs(image_storage, exist_ok=True)
+
+    print("DEBUG — number of prompts:", len(prompts))
 
     image_model = ImageModel(image_storage)
     timestamp = str(time.time())
 
     image_model.generate_images(prompts, timestamp)
+
+    print("DEBUG — files after generation:", os.listdir(image_storage))
 
     return image_storage
 
@@ -114,7 +118,7 @@ def create_video(audio, images, output, bgm=None, subtitles=None):
 
     cmd = [
         video_env_python,
-        "video_worker.py",
+        "./models/video_worker.py",
         json.dumps(payload)
     ]
 
@@ -144,10 +148,11 @@ def main():
     images_folder = create_images(image_prompts)
 
     create_video(
-        audio_path=audio_path,
-        image_folder=images_folder,
-        subtitle=subtitle,
-        bgm_path="bgms/classic.mp3",
+        audio=audio_path,
+        images=images_folder,
+        output=f"{STORAGE}/video.mp4",
+        bgm="bgms/classic.mp3",
+        subtitles=subtitle,
     )
 
 
