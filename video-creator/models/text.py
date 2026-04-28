@@ -1,6 +1,7 @@
 import json
 import ollama
 from typing import List
+import re
 
 
 class TextModel:
@@ -20,7 +21,7 @@ class TextModel:
         """
 
         response = ollama.chat(
-            model="llama3.2",
+            model="phi3:mini",
             messages=[
                 {"role": "system", "content": system_message.strip()},
                 {"role": "user", "content": user_message.strip()},
@@ -34,27 +35,59 @@ class TextModel:
 
     def generate_image_prompts(self, content: str) -> List[str]:
         system_message = """
-        You are an artist and a prompt engineer who could describe image in words clearly by a content sequentially. 
-        No explanation, No additional text, No additional decorations, only list of strings as array as response. 
-
-        Response has to be strictly json list of strings. No string prefix or suffix around json output.
+        You are an artist and a prompt engineer who describes images clearly.
+        Respond ONLY with a JSON array of strings.
+        No explanation. No extra text. No markdown. No prefix/suffix.
         """
 
         user_message = f"""
-        Give list of 5 descriptive, clear image prompts for below content sequentially
+        Give list of 5 descriptive, clear image prompts for this content:
 
         {content}
         """
 
         response = ollama.chat(
-            model="llama3.2",
+            model="phi3:mini",
             messages=[
                 {"role": "system", "content": system_message.strip()},
                 {"role": "user", "content": user_message.strip()},
             ],
         )
 
-        content = response["message"]["content"]
-        final_response = json.loads(content)
+        raw = response["message"]["content"].strip()
 
-        return list(final_response)
+        # --- 1. Fast path: valid JSON ---
+        try:
+            return list(json.loads(raw))
+        except Exception:
+            pass
+
+        # --- 2. Attempt to extract JSON array from messy output ---
+        try:
+            # Extract anything between [ ... ]
+            match = re.search(r" \[(.| \n) *\] ", raw)
+            if match:
+                cleaned = match.group(0)
+            return list(json.loads(cleaned))
+        except Exception:
+            pass
+
+        # --- 3. Retry once with a stricter system prompt ---
+        retry_response = ollama.chat(
+            model="phi3:mini",
+            messages=[
+                {"role": "system", "content": "Return ONLY a JSON array of 5 strings."},
+                {"role": "user", "content": user_message.strip()},
+            ],
+        )
+
+        retry_raw = retry_response["message"]["content"].strip()
+
+        try:
+            return list(json.loads(retry_raw))
+        except Exception:
+            print("❌ LLM failed to return valid JSON twice.")
+            print("Raw output:", raw)
+            print("Retry output:", retry_raw)
+            return []
+
