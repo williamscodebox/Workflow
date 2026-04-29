@@ -29,17 +29,17 @@ class SubtitleModel:
               "--no_align"
           ]
 
-        # print("WHISPERX CMD:", cmd)
+          # print("WHISPERX CMD:", cmd)
 
-        subprocess.run(cmd, check=True)
+          subprocess.run(cmd, check=True)
 
-        # WhisperX always names the file <audio>.json
-        base = os.path.splitext(os.path.basename(audio_path))[0]
-        json_path = os.path.join(tmpdir, f"{base}.json")
+          # WhisperX always names the file <audio>.json
+          base = os.path.splitext(os.path.basename(audio_path))[0]
+          json_path = os.path.join(tmpdir, f"{base}.json")
 
-        # Load WhisperX output
-        with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+          # Load WhisperX output
+          with open(json_path, "r", encoding="utf-8") as f:
+              data = json.load(f)
 
         # Convert to your expected format
         words = []
