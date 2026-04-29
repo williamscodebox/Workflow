@@ -1,6 +1,7 @@
 from moviepy import *
 import os
 from typing import List
+import subprocess
 
 class VideoModel:
     def __init__(self, audio_path: str):
@@ -37,6 +38,12 @@ class VideoModel:
 
         self.video = concatenate_videoclips([base_video, filler_clip], method="compose")
 
+    try:
+        out = subprocess.check_output(["ffmpeg", "-version"], stderr=subprocess.STDOUT)
+        print("FFMPEG OK:", out.decode().split("\n")[0])
+    except Exception as e:
+        print("FFMPEG NOT FOUND:", e)
+
     def attach_audio(self, bgm_path: str | None = None):
         audios = [self.audio]
 
@@ -44,18 +51,25 @@ class VideoModel:
             if not isinstance(bgm_path, str):
                 raise TypeError(f"attach_audio expected a file path, got {type(bgm_path)}")
 
+            bgm_path = os.path.abspath(bgm_path)
             print("DEBUG — bgm_path:", bgm_path)
             print("DEBUG — exists:", os.path.exists(bgm_path))
 
-            bgm = (
-                AudioFileClip(bgm_path)
-                .max_volume(0.2)
-                .set_duration(self.audio_duration)
-            )
-            audios.append(bgm)
+            bgm_clip = AudioFileClip(bgm_path)
+            print("DEBUG — raw bgm_clip type:", type(bgm_clip))
+
+            # UNIVERSAL VOLUME CONTROL FOR ALL MOVIEPY VERSIONS
+            bgm_clip = bgm_clip.with_volume_scaled(0.2)
+
+            # UNIVERSAL DURATION CONTROL
+            bgm_clip = bgm_clip.with_duration(self.audio_duration)
+
+            print("DEBUG — processed bgm_clip type:", type(bgm_clip))
+
+            audios.append(bgm_clip)
 
         composite_audio = CompositeAudioClip(audios)
-        self.video = self.video.set_audio(composite_audio)
+        self.video = self.video.with_audio(composite_audio)
 
     def attach_subtitle(self, subtitles: List):
         group_size = 4
@@ -76,6 +90,7 @@ class VideoModel:
         self.video = SubtitleEffects.simple_subtitle(self.video, grouped)
 
     def generate_video(self, output_path: str):
+
         self.video.write_videofile(
             output_path,
             fps=24,
