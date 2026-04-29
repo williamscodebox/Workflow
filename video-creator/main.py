@@ -36,14 +36,22 @@ STORAGE = get_output_path()
 
 
 DEFAULT_TOPICS = [
-    "a historical inspiring fact that changed computer science",
-    "an ancient story about a clever king or warrior",
-    "a strange or funny fact from world history",
-    "a scientific discovery that changed human life",
-    "a breakthrough in medical science that saved millions",
-    "a dramatic moment from World War 1 or World War 2",
-    "a surprising origin of a modern invention",
-    "a fun random fact that will make people smile",
+    "Micro Challenge workout",
+    "Beat drop workout.",
+    "Supercharged POV Workout.",
+    "Speed run workout.",
+    "Extreme variant workout.",
+    "Fight mode workout",
+    "Gamified fitness",
+    "10 second maximum energy workout"
+    # "a historical inspiring fact that changed computer science",
+    # "an ancient story about a clever king or warrior",
+    # "a strange or funny fact from world history",
+    # "a scientific discovery that changed human life",
+    # "a breakthrough in medical science that saved millions",
+    # "a dramatic moment from World War 1 or World War 2",
+    # "a surprising origin of a modern invention",
+    # "a fun random fact that will make people smile",
     # "a tech innovation that shaped the digital world",
     # "a programming tip that can improve your workflow",
     # "best practices for clean and maintainable code",
@@ -51,6 +59,8 @@ DEFAULT_TOPICS = [
     # "how to build scalable and efficient software systems",
     # "tips for parents on supporting children's learning at home",
     # "how to motivate students for effective study habits",
+
+
 ]
 
 
