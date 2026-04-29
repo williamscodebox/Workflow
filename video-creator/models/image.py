@@ -4,6 +4,8 @@ import time
 from diffusers import StableDiffusionPipeline
 from diffusers import AutoencoderKL
 from typing import List
+from diffusers.utils import logging
+logging.set_verbosity_error()  # <‑‑ disables ALL progress bars + logs
 
 
 class ImageModel:
@@ -37,6 +39,8 @@ class ImageModel:
             safety_checker=None,
             feature_extractor=None,
         ).to(self.device)
+
+        self.pipe.set_progress_bar_config(disable=True)
 
         print("✅ Image Model loaded on", self.device)
 
