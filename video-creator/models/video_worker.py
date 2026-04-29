@@ -1,8 +1,15 @@
+import os
+os.environ["PYTHONIOENCODING"] = "utf-8"
+os.environ["PYTHONUTF8"] = "1"
+
 # video_worker.py
 import sys
 import json
 from video import VideoModel   # your class
 import os
+
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 def main():
     args = json.loads(sys.argv[1])
