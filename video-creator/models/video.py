@@ -68,13 +68,15 @@ class VideoModel:
 
             audios.append(bgm_clip)
 
-        # SAFETY FIX: Prevent MoviePy from reading past the end of the BGM
-        for i, clip in enumerate(audios):
-            safe_end = clip.duration - 0.05
-            if safe_end > 0:
-                audios[i] = clip.subclipped(0, safe_end)
-
+        # Create composite audio FIRST
         composite_audio = CompositeAudioClip(audios)
+
+        # SAFETY FIX: Trim the FINAL composite audio
+        safe_end = composite_audio.duration - 0.05
+        if safe_end > 0:
+            composite_audio = composite_audio.with_duration(safe_end)
+
+        # Attach trimmed audio
         self.video = self.video.with_audio(composite_audio)
 
     def attach_subtitle(self, subtitles: List):
