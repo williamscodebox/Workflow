@@ -126,7 +126,8 @@ def create_video(audio, images, output, bgm=None, subtitles=None):
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        errors="ignore"
     )
 
     out, err = process.communicate()
