@@ -1,23 +1,44 @@
 from TTS.api import TTS
-
+import soundfile as sf
+import numpy as np
+import os
 
 class AudioModel:
-    def __init__(self, storage_path: str = ""):
+    def __init__(self, storage_path="", model_name="tts_models/multilingual/multi-dataset/your_tts"):
         self.storage_path = storage_path
-        self.tts = TTS(model_name="tts_models/en/vctk/vits", progress_bar=True)
-        self.speaker = self.tts.speakers[104]
+        os.makedirs(self.storage_path, exist_ok=True)
+
+        print("[GlowTTS] Loading model…")
+
+        # GlowTTS automatically loads HiFiGAN as vocoder
+        self.tts = TTS(model_name).to("cuda")
+        print("Available speakers:", self.tts.speakers)
+
+        print("[GlowTTS] Model ready on GPU")
 
     def generate_audio(self, content: str, filename: str):
-        outfile_path = f"{self.storage_path}{filename}.wav"
+        outfile = f"{self.storage_path}{filename}.wav"
+        print(f"[GlowTTS] Generating audio → {outfile}")
 
-        self.tts.tts_to_file(
+        # Generate audio (GlowTTS → HiFiGAN)
+        audio = self.tts.tts(
             text=content,
-            file_path=outfile_path,
-            speaker=self.speaker,
-            speed=0.95,
-            pitch=0.8,
+            speaker="male-en-2",  # or any speaker ID
+            language="en",
+            length_scale=0.78,
+            noise_scale=0.28,
+            noise_w=0.60
         )
 
-        print(f"✅ Audio generated! {outfile_path}")
+        # Ensure float32 numpy array
+        audio = np.array(audio, dtype=np.float32)
 
-        return outfile_path
+        # Ensure shape is (samples,)
+        if audio.ndim > 1:
+            audio = audio.squeeze()
+
+        # Save WAV
+        sf.write(outfile, audio, self.tts.synthesizer.output_sample_rate)
+
+        print(f"✅ Audio generated! {outfile}")
+        return outfile
