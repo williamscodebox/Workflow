@@ -71,3 +71,5 @@ class ImageModel:
         print("DEBUG — generate_images called with", len(prompts), "prompts")
         for i, prompt in enumerate(prompts, start=1):
             self.generate_image(prompt, f"{filename_prefix}_{i}")
+
+

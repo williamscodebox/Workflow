@@ -150,25 +150,26 @@ def create_video(audio, images, output, bgm=None, subtitles=None):
 
 
 def main():
-    content, image_prompts = get_content()
-
-    audio_path = create_audio(content)
-
-    import torch, gc
-    gc.collect()
-    torch.cuda.empty_cache()
-
-    subtitle = create_subtitle(audio_path)
-
-    images_folder = create_images(image_prompts)
-
-    create_video(
-        audio=audio_path,
-        images=images_folder,
-        output=f"{STORAGE}/video.mp4",
-        bgm="bgms/classic.mp3",
-        subtitles=subtitle,
-    )
+    create_images(["can you draw A clean black silhouette of a person performing 'tapping their toe', plain white background, bold label text “STEP 1”, ultra‑minimal style, perfect for motion‑tracking animations, high contrast, crisp edges, no details except the pose. Have label text 'person tapping their toe' at the bottom"])
+    # content, image_prompts = get_content()
+    #
+    # audio_path = create_audio(content)
+    #
+    # import torch, gc
+    # gc.collect()
+    # torch.cuda.empty_cache()
+    #
+    # subtitle = create_subtitle(audio_path)
+    #
+    # images_folder = create_images(image_prompts)
+    #
+    # create_video(
+    #     audio=audio_path,
+    #     images=images_folder,
+    #     output=f"{STORAGE}/video.mp4",
+    #     bgm="bgms/classic.mp3",
+    #     subtitles=subtitle,
+    # )
 
 
 # Sample
