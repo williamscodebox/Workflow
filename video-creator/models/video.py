@@ -62,7 +62,11 @@ class VideoModel:
             bgm_clip = bgm_clip.with_volume_scaled(0.2)
 
             # UNIVERSAL DURATION CONTROL
-            bgm_clip = bgm_clip.with_duration(self.audio_duration)
+            # bgm_clip = bgm_clip.with_duration(self.audio_duration)
+
+            # NON-LOOPING SAFE TRIM
+            safe_end = min(bgm_clip.duration, self.audio_duration)
+            bgm_clip = bgm_clip.subclipped(0, safe_end)
 
             print("DEBUG — processed bgm_clip type:", type(bgm_clip))
 
@@ -179,13 +183,14 @@ class SubtitleEffects:
                 TextClip(
                     text=word,                 # ← MUST be keyword
                     font="fonts/Robo.ttf",            # ← MUST be keyword
-                    font_size=50,
+                    font_size=22,
                     color="white",
+                    margin=(0,40),
                     # bg_color="rgba(0,0,0,0.4)",
                     stroke_color="black",
-                    stroke_width=2,
+                    stroke_width=1,
                     method="label",
-                    size=(video.w - 100, None),
+                    size=(video.w - 80, None),
                 )
                 .with_position(("center", "bottom"))
                 # .margin(bottom=80)
