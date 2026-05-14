@@ -116,7 +116,7 @@ def create_subtitle(audio_filepath: str) -> List:
 
 
 def create_video(audio, images, output, bgm=None, subtitles=None):
-    video_env_python =  r"C:\Users\panda\PycharmProjects\Workflow\.mlstackvenv\Scripts\python.exe"
+    video_env_python =  r"D:\Projects\Workflow\.mlstackvenv\Scripts\python.exe"
 
     payload = {
         "audio": audio,
@@ -153,6 +153,10 @@ def main():
     content, image_prompts = get_content()
 
     audio_path = create_audio(content)
+
+    import torch, gc
+    gc.collect()
+    torch.cuda.empty_cache()
 
     subtitle = create_subtitle(audio_path)
 

@@ -5,6 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/.whisperXvenv" />
       <excludeFolder url="file://$MODULE_DIR$/.mlstackvenv" />
+      <excludeFolder url="file://$MODULE_DIR$/.whisperxvenv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (Workflow)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

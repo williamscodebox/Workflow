@@ -177,26 +177,24 @@ class SubtitleEffects:
 
             txt_clip = (
                 TextClip(
-                    word,
-                    fontsize=50,
+                    text=word,                 # ← MUST be keyword
+                    font="fonts/Robo.ttf",            # ← MUST be keyword
+                    font_size=50,
                     color="white",
-                    bg_color="rgba(0,0,0,0.4)",
-                    font="Impact",
+                    # bg_color="rgba(0,0,0,0.4)",
                     stroke_color="black",
                     stroke_width=2,
-                    method="caption",  # enables word wrapping
-                    size=(
-                        video.w - 100,
-                        None,
-                    ),  # wrap at screen width - 100px padding
+                    method="label",
+                    size=(video.w - 100, None),
                 )
-                .set_position(("center", "bottom"))
-                .margin(bottom=80)
-                .set_start(start)
-                .set_duration(duration)
-                .fadein(0.01)
+                .with_position(("center", "bottom"))
+                # .margin(bottom=80)
+                .with_start(start)
+                .with_duration(duration)
+                # .fadein(0.01)
             )
 
             subtitle_clips.append(txt_clip)
 
         return CompositeVideoClip([video] + subtitle_clips)
+
